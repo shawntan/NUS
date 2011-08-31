@@ -1,0 +1,38 @@
+Question 1:
+
+
+In this assignment, we didn't ask you to support phrasal queries, which is a feature that is typically supported in web search engines. Describe how you would support phrasal search in conjunction with the VSM model. A sketch of the algorithm is sufficient.
+
+1. Build the postings list such that it has support for positional indices.
+
+2. For each query, perform positional intersection, as outlined on page 39 of IIR
+
+3. If no results, we are done. Exit with empty results.
+
+4. Otherwise, save the results as RESULT_1.
+
+5. Perform the same query using the VSM model. The ranked results (top k th results) are saved as RESULT_2.
+
+6. Remove elements from RESULT_2 that are NOT PRESENT in RESULT_1. The resulting list is the result. Exit.
+
+
+Question 2:
+
+
+Describe how your search engine reacts to long documents and long queries as compared to short documents and queries. Is the normalization you use sufficient to address the problems (see Section 6.4.4 for a hint)? In your judgement, is the lnc.ltc scheme sufficient for retrieving documents from the Reuters-21578 collection?
+
+Longer documents contain more terms, thus result in higher tf values. Also, longer documents would in general contain more different types of terms, therefore would result in a higher match in a given query. Because of these two factors, longer documents would result in a higher score, compared to a shorter document containing the exact same match to the query. Longer queries in more dimensions, which might take slightly longer to process. Short queries are noticeably faster to process. In effect, longer queries decrease the accuracy of the results because the results from the various query terms are "mixed" together.
+
+Therefore, the current normalization is not sufficient because in a way, the length of the documents is independent of the normalization, and thus the accuracy of the results. In order words, the accuracy does not depend on the length of the documents, since no document-wide normalization is performed.
+
+lnc.ltc is fine, because in the Reuters-21578 collection, the documents and queries are all relatively short. Furthermore, the documents are about the same length, so using the current normalization scheme is an acceptable approximation. 
+
+
+Question 3:
+
+
+Do you think zone or field parametric indices would be useful for practical search in the Reuters collection? Note: the Reuters collection does have metadata for each article but the quality of the metadata is not uniform, nor are the metadata classifications uniformly applied (some documents have it, some don't).
+
+Because of the non-uniformity of meta-data of the Reuters collection, parametric indices would not be very useful. Furthermore incomplete information would mean that a search that would normally yield a positive result becomes empty/lesser. 
+
+Zones can be slightly more useful since it works on the idea of arbitary, unbounded text. Furthermore, almost every document has a title and body, which can be classify as separate zones. Simply using the first line as the title and the rest of the content as the body doesn't require the use of meta-data (which as stated, is unreliable and incomplete)

@@ -1,0 +1,85 @@
+u0707129@nus.edu.sg
+
+------------------------------------------------------------------------------
+[Question 1]
+
+In the homework assignment, we are using character-based ngrams, i.e., the gram units are characters. Do you expect token-based ngram models to perform better? If you are to implement a token-based ngram system, how do you tokenize an URL such as http://www.cnn.com/US/9806/22/hot.hot.hot/video.html?
+------------------------------------------------------------------------------
+
+A token-based n-gram system would be split using delimiters such as "/" and ".". Furthermore, common words such as "http://", "www", "com", "html" etc should be removed. Numbers in this case would no be very useful either.  
+
+Token-based n-gram models in general would not perform better, simply because it would be much more difficult to find matches. 
+
+Experimental results seem to confirm this:
+
+---------------------
+|  n  |  Accuracy   |
+---------------------
+|  1  |  17/20 (75%)|    
+|  2  |  14/20 (70%)|  
+|  3  |  13/20 (65%)|  
+|  4  |  11/20 (55%)|  
+|  5  |  11/20 (55%)|  
+---------------------
+
+------------------------------------------------------------------------------
+[Question 2]
+
+What do you think will happen if we provided more data for each category for you to build the language models? What if we only provided more data for Arts?
+------------------------------------------------------------------------------
+
+The probability of matching would increase. However, the probabilities would be very small, and the resulting probabilities might be too small to differentiate, especially with 1-smoothing applied.
+
+Providing more data for one category would increase the probability of matching for that category. In this case, more matches of Arts could be expected.
+
+------------------------------------------------------------------------------
+[Question 3]
+
+What do you think will happen if you strip out punctuations and/or numbers? What about converting upper case characters to lower case?
+------------------------------------------------------------------------------
+
+Fixing n = 5, based on experimental results:
+
+With punctuations, without lowercase 	   : 18/20 (90%)
+Without punctuations, without lowercase    : 18/20 (90%)
+With punctuations, with lowercase    	   : 17/20 (85%)
+Without punctuations, with lowercase       : 17/20 (85%)
+
+Fixing n = 3
+
+With punctuations, without lowercase 	   : 15/20 (75%)
+Without punctuations, without lowercase    : 15/20 (75%)
+With punctuations, with lowercase    	   : 16/20 (80%)
+Without punctuations, with lowercase       : 16/20 (80%)
+
+For a lower n, stripping out punctuations and forcing the urls to be lowercase seems to increase the accuracy, although only by 5%. On a higher n, it seems to degrade the performance by 5%. 
+
+Stripping out punctuations doesn't seem to have any effect on the results. One reason would be that URLs seldom contain punctuations. Another would be the punctuations would not have any effect on categorizing the URLs since the probability of matching a punctuation with characters would be slim.
+
+Making the URLs to lowercase seemed to have an effect of the accuracy. This is to be expected, since by making the urls all lowercase, the number of expected matches would also increase. However, this might have the effect of either creating false positives or false negatives, thus no direct correlation of its accuracy can be said.
+
+However in general, converting all URLs to lowercase should yield better results, if the sample data is large enough. This is especially so since URLs are not case sensitive in the first place. 
+
+------------------------------------------------------------------------------
+[Question 4] 
+
+We use five-gram models in this homework assignment. What do you think will happen if we varied the n-gram size, such as using unigrams, bigrams and trigrams?
+------------------------------------------------------------------------------
+
+Based on experimental results:
+
+---------------------
+|  n  |  Accuracy   |
+---------------------
+|  1  |  11/20 (55%)|    
+|  2  |  14/20 (70%)|  
+|  3  |  15/20 (75%)|  
+|  4  |  18/20 (90%)|  
+|  5  |  18/20 (90%)|  
+|  6  |  18/20 (90%)|  
+| 10  |  15/20 (75%)|
+---------------------
+
+Using n-grams of too small a size usually limits the accuracy. By limiting the size of the n-gram, the number of false positives would increase. When the n-grams are smaller, a particular n-gram has a higher probability of fitting more categories. 
+
+Using n-grams which are too large also limits the accuracy. A n-gram that is too big has a very small probability of matching a candidate URL, and may cause higher false negatives.

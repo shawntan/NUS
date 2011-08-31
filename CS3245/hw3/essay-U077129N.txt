@@ -1,0 +1,55 @@
+Question 1:
+
+Benchmark the efficiency of your compression, similar in style to the Table 5.1 in IIR. Measure the size of your postings files, 
+
+
++-+---------------------------------------+---------------+------------
+| | Variant                               |  Size (Bytes) |   % chg   |
++-+---------------------------------------+---------------+------------
+|1| Without positional postings           |   5,052,561   |     --    |
++-----------------------------------------+---------------+------------
+|2| With positional postings              |  11,153,475   |    +120   |
++-----------------------------------------+---------------+------------ 
+|3| (2) w/ compressed positional postings |   3,695,258   |    -27    |
++-----------------------------------------+---------------+------------
+|4| (2) w/ compressed document postings   |   10,771,582  |    +113   |
++-----------------------------------------+---------------+------------ 
+|5| (3) + (4)                             |   3,240,883   |    -35    |
++-----------------------------------------+---------------+------------
+
+
+(a) originally after Homework #2, 
+
+(b) after adding in the capability of positional postings, 
+
+(c) after adding in compression for positional postings, 
+
+(d) after adding in compression for document postings, and 
+
+(e) after adding in both compression for document and positional postings.
+
+Question 2: 
+
+For the Reuters 21578 collection, do you think using different variable sized encoding (4, 16 or 32 bits) would help? For encoding document postings? For encoding positional postings?
+
+Answer:
+
+Using more bits would use (exponentially) more space to store a particular character (e.g. 32bits vs 4 bits). In the case of 32 bits, it is possible to compute the encoded character faster since the entire byte could be computed, instead of having to read bits (as in the case of 4 bits). Therefore, a larger size encoding would be useful if we were to expect that the numbers run quite large.
+
+For positional postings, if we were to employ gap based encoding, we would expect that the gaps would not be very large, unless we are encountering very long documents with very rare words in between them. Hence, smaller size encoding would be preferred.
+
+This is similar to document postings, since we are encoding gaps. However, this also depends how the document Ids are named in the first place. If for example, the file names are of Chinese characters, then a higher encoding would be needed.
+
+In the case of the Reuters collection, the file names are numbered sequentially. The largest file name is around 20000. Therefore, the Reuters collection would not benefit much. Furthermore, encoding with at a larger encoding would unnecessarily increase the size of the postings list exponentially.
+
+Question 3:
+
+Imagine that we disallow searching for stopwords and numbers by themselves, but only allow searching for them as part of phrasal queries. Furthermore, assume such phrasal queries must start with a non-stopword. In this case searches like he and "the who" are disallowed but "bmw 325" and "national university of singapore" are allowed. Could we make any cost savings in indexing at either indexing or query time? ("Cost savings" here covers both space and/or speed).
+
+Answer:
+
+Disallowing searching for stopwords and numbers only prevents the user from making queries that would otherwise return a large number of results. However, because we are allowing queries with stopwords and numbers, we would still need to index the them along with relative positions, in order to support phrasal queries. Therefore, aside from queries that are disallowed, there will not be any significant speedup or savings in time and space respectively.
+
+
+
+

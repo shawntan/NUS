@@ -1,0 +1,21 @@
+Question 1:
+
+There are two methods in calculating the average precision/recall/F1 : Macro or Micro. The model used in eval-c.py is the 
+
+Macro averaging is done by calculating the first calculating the precision and recall for each category an then taking the average of these. (eval-c.py uses this)
+
+Micro averaging is done by constructing a global contingency table (by combining individual contingency tables from each each class) and then calculating the precision and recall using these sums. (Good for testing large classes)
+
+Macro-averaging gives equals weight to every category, while micro-averaging gives equals weight to every document. (Good for testing small classes)
+
+
+Question 2:
+
+In this case, we could use weighted averaging, much like the way F-measure is weighted between precision and recall. In this case, the class "News" would be given a much higher weighting compared to "Sports" and "News".
+
+Question 3:
+
+When using actual precision, the F-measure would be fluctuating (in could be increasing or decreasing), while using interpolated precision, the F-measure would non-decreasing. The interpolated precision simulates a patient user who is willing to click through multiple pages to get a relevant result.
+
+
+

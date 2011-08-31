@@ -1,0 +1,77 @@
+Please write your answers to the essay questions in this file.
+
+1. You will observe that a large portion of the terms in the
+   dictionary are numbers. However, we normally do not use numbers as
+   query terms to search. Do you think it is a good idea to remove
+   these number entries from the dictionary and the postings lists?
+   Can you propose methods to normalize these numbers? How many
+   percentage of reduction in disk storage do you observe after
+   removing/normalizing these numbers?
+
+And: Removing numbers from the dictionary and postings file reduced the  
+     file size by 32% and 9% respectively. While it is tempting to remove
+     numbers, they do convey certain meaning or are pieces of important 
+     information.
+
+     For example, a query can involve an event happening on a certain
+     year, or even a search for a module code. 
+
+     Because numbers can take on a few meanings, here are some ways that
+     numbers can be normalized:
+
+     a) Truncate leading zeros
+     
+     b) Detect common patterns of numbers (using regex for example).
+        Phone numbers, IP addresses etc can be stored in one category.
+     
+     c) Other numbers which do not fit into any category can be stored
+        in ranges. So for 1 - 100, 101 - 200 etc.
+     
+     d) Numbers which only appear in one article could be removed, as they 
+        may be deemed insignificant.
+
+
+2. What do you think will happen if we remove stop words from the
+   dictionary and postings file? How does it affect the searching
+   phase?
+
+   The postings size would be reduced more than the dictionary. However, the consequences
+   of removing stop words might lead to a degradation of search quality. For example,
+   now any search containing a stop word and a AND would lead to _ZERO_ results. This is 
+   in contrast when not removing stop words would probably lead to at least a few
+   results. Furthermore, some queries would be much more difficult to form, especially if 
+   they contain stop words. In the worse case, it would not be even possible to formulate
+   the query and yet expect to get results returned.
+
+3. The NLTK tokenizer may not correctly tokenize all terms. What do
+   you observe from the resulting terms produced by sent_tokenize()
+   and word_tokenize()? Can you propose rules to further refine these
+   results?
+
+   sent_tokenize() parses text with Dr,/Mr. wrongly, prematurely cutting of the sentence.
+   Non standard English sentences are also parsed wrongly. 
+   
+   This could be solved by replacing all Dr. and Mr. etc without the dots.   
+
+   Another example, "I wanna go home" produces ["I","wan","na","go","home"] while "I      
+   ain' going to go home" yields ['I', 'ai', "n't", 'going', 'back', 'to', 'do',     
+   'CS1101S', 'again']. Therefore, the parse should be able to detect these words 
+   before breaking them into words.
+   
+   
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
