@@ -3,16 +3,19 @@
 :- op(959,xfx,do).
 :- op(960,fx,for).
 
-while(do(S)) :- while(S).
 
-transform( while(S1) do {S2;}, while(S1t) do {S2t;} ) :-
-	!,transform(S1,S1t), transform(S2,S2t), while(do(S2t)).
+statement(S;Ss) :- statement(S;), rest_statements(Ss),!.
+statement({S}) :- writeln('{'), statement(S), writeln('}').
 
-transform(S,S).
+statement(while X do Y;) :- write('while '), write('('), write(X) ,write(') '), statement(Y), !.
 
-/*
-	while(do(S)) :- while(S).
-*/
+
+statement(S;) :- writeln(S;).
+
+
+rest_statements(S;Ss) :- statement(S), rest_statements(Ss).
+rest_statements(S) :- statement(S).
+rest_statements :- true.
 
 
 /*
@@ -22,9 +25,8 @@ while (x>0) do {
 };
 a=a+1; };
 
-*/
 
-/*while (x>0) {
+while (x>0) {
    switch (y+z) {
    case 0 : { if (x<0) { a = 1 ; } else { a = 2 ; } }
             break ;
