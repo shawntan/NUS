@@ -6,10 +6,7 @@
 
 statement(S;Ss) :- statement(S;), rest_statements(Ss),!.
 statement({S}) :- writeln('{'), statement(S), writeln('}').
-
 statement(while X do Y;) :- write('while '), write('('), write(X) ,write(') '), statement(Y), !.
-
-
 statement(S;) :- writeln(S;).
 
 
