@@ -1,3 +1,5 @@
+/* Benjamin Tan U077129N */
+
 :- op(1099,yf,;).
 :- op(960,fx,while).
 :- op(959,xfx,do).
@@ -8,6 +10,7 @@
 :- op(960,fx,switch).
 :- op(959,xfx,of).
 :- op(959,xfx,::).
+:- op(959,xfx,=).
 
 
 statement(S;Ss) :- statement(S;), rest_statements(Ss),!.
@@ -34,11 +37,31 @@ statement(X\=Y)  :- write(X), write('!='), write(Y).
 statement(X\=Y;) :- write(X), write('!='), writeln(Y;).
 
 statement(S;) :- writeln(S;).
-statement(S)  :- write(S). /* Test Statements */
+statement(S)  :- write(S). 
+
+
+if_statement(if _ then Y;) :- [Y]. 
+
+assignment(_=_).
 
 rest_statements(S;Ss) :- statement(S), rest_statements(Ss).
-rest_statements(S) :- statement(S).
-rest_statements :- true.
+rest_statements(S)    :- statement(S).
+rest_statements       :- true.
+
+
+count_assign(S;Ss, N)   :- 
+
+	
+	(assignment(S) -> N1 is N+1, count_assign(Ss, N1), ! ; count_assign(Ss, N)).
+
+
+
+
+
+count_assign({S;Ss}, N) :- (assignment(S) -> N1 is N+1, count_assign(Ss, N1), ! ; count_assign(Ss, N)).
+count_assign({S;}, N)   :- assignment(S), N1 is N+1, writeln(N1).
+count_assign(S;, N)     :- assignment(S), N1 is N+1, writeln(N1).
+
 
 
 /*
@@ -66,15 +89,29 @@ while (x>0) {
    }
    a = a+1 ; }
 
+Test Cases for overall:
+
+statement(
+while (x>0) do {
+  switch (y+z) of {
+0 :: { if (x<10) then { a = 1 ; } else { a = 2; }; }; 1 ::{ if (y\=1) then {a=2; b=3;};}; default :: { a = 0 ; } ;
+};
+a=a+1; };
+).
+
+
+
 Test Cases for case:
+
 statement( 0 :: { if (x<10) then { a = 1 ; } else { a = 2; }; }; ).
 statement( 0 :: { b=a; }; 1 :: { b=c; }; 2:: { z=b; }; ).
 statement( default :: { if (x<10) then { a = 1 ; } else { a = 2; }; }; ).
 statement( 0 :: { a=b; }; 1 ::{ b=3; }; 2 :: { a=0; }; ).
 
 
+
 Test Cases for if:
-statement( if (z\=0) then { x=a; } else { b\=a; }; ).
+
 statement( if (z\=0) then { x=a; while (a\=0) do { b=a; if (z\=0) then { x=a; } else { b\=a; };}; }; ).
 
 
