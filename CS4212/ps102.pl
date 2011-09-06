@@ -35,12 +35,13 @@ count_assign(_X :: Y, N) :- count_assign(Y, N), !.
 
 count_assign(_;,0) :- !.
 
+isAssign(X=E) :- identifier(X), isExpr(E), !.
 
+isExpr(X) :- X =.. [F,A,B],
+	member(F, [+,-,*,/, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B).
 
-isAssign(X=E) :- 
-	((identifier(X), value(E)) ; (identifier(X), identifier(E))), !.
-
-
+	
+isExpr(X) :- identifier(X), ! ; value(X).
 
 identifier(X) :- atom(X),!.
 value(X) :- number(X),!.
