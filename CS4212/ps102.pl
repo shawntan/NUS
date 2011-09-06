@@ -12,7 +12,6 @@
 :- op(959,xfx,::).
 :- op(959,xfx,=).
 
-
 count_assign(X=E;Ss, N) :- !, count_assign(Ss, N1), (isAssign(X=E) -> N is N1+1 ; N is N1).
 count_assign(S;Ss, N) :- count_assign(S, N1), count_assign(Ss, N2), N is N1+N2.
 count_assign(X=E;, N) :- !, (isAssign(X=E) -> N is 1 ; N is 0).
@@ -39,7 +38,6 @@ isAssign(X=E) :- identifier(X), isExpr(E), !.
 
 isExpr(X) :- X =.. [F,A,B],
 	member(F, [+,-,*,/, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B).
-
 	
 isExpr(X) :- identifier(X), ! ; value(X).
 
