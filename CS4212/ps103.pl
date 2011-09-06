@@ -15,81 +15,95 @@
 :- op(959,xfx,=).
 
 
+get_identifier(S;Ss, InList, OutList) :- 
+	get_identifier(S, InList, OutList1), 
+	get_identifier(Ss, OutList1, OutList), !.
 
+% Statements with '{ }' 
+get_identifier({S}, InList, OutList) :- get_identifier(S, InList, OutList), !.
 
-
-/*get_identifer(S;Ss, List) :- 
-	get_identifer(S, L1), get_identifer(Ss, L2), append(L1, L2, List).
-
-get_identifer(S;, List) :- 
-	get_identifer(S, L1), append(List, L1, List).
-
-get_identifer({S}, List) :- 
-	get_identifer(S, List).*/
-
-
-get_identifer(S;Ss, InList, OutList) :- 
-	get_identifer(S, InList, OutList1), 
-	get_identifer(Ss, OutList1, OutList).
-
-get_identifer(X=E;, InList, OutList) :- 
-	identifier(X), !, 
-	append(InList, [X], OutList1),
-	get_identifer(E, OutList1, OutList).
+% Assignments
+get_identifier(X=E;, InList, OutList) :- 
+	get_identifier(X, InList, OutList1),
+	get_identifier(E, OutList1, OutList), !.
 	
-get_identifer(X=E, InList, OutList) :- 
-	identifier(X), !, 
-	append(InList, [X], OutList1),
-	get_identifer(E, OutList1, OutList).	
+get_identifier(X=E, InList, OutList) :- 
+	get_identifier(X, InList, OutList1),
+	get_identifier(E, OutList1, OutList), !.	
+
+% Operators
+get_identifier(S, InList, OutList) :- 
+	S =.. [F,A,B],
+	member(F, [+,-,*,/, >, <, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B),
+	get_identifier(A, InList, OutList1),
+	get_identifier(B, OutList1, OutList), !.
+
+% while statements
+get_identifier(while X do Y;, InList, OutList) :- 
+	get_identifier(X, InList, OutList1),
+	get_identifier(Y, OutList1, OutList), !. 
+	
+get_identifier(while X do Y, InList, OutList) :- 
+	get_identifier(X, InList, OutList1),
+	get_identifier(Y, OutList1, OutList), !.
+
+% if statements
+get_identifier(if X then Y;, InList, OutList) :- 
+	get_identifier(X, InList, OutList1), 	
+	get_identifier(Y, OutList1, OutList), !.
+	
+get_identifier(if X then Y, InList, OutList) :- 
+	get_identifier(X, InList, OutList1), 	
+	get_identifier(Y, OutList1, OutList), !.	
+
+get_identifier(if X then Y else Z;, InList, OutList) :- 
+	get_identifier(X, InList, OutList1), 	
+	get_identifier(Y, OutList1, OutList2), 
+	get_identifier(Z, OutList2, OutList), !.
+
+get_identifier(if X then Y else Z, InList, OutList) :- 
+	get_identifier(X, InList, OutList1), 
+	get_identifier(Y, OutList1, OutList2), 
+	get_identifier(Z, OutList2, OutList), !.
+
+% switch statement
+get_identifier(switch X of Y;, InList, OutList) :- 
+	get_identifier(X, InList, OutList1),
+	get_identifier(Y, OutList1, OutList), !.
+	
+get_identifier(switch X of Y, InList, OutList) :- 
+	get_identifier(X, InList, OutList1),
+	get_identifier(Y, OutList1, OutList), !.
+
+% case statement
+
+get_identifier(_X :: Y;, InList, OutList) :-
+	get_identifier(Y, InList, OutList), !.
+
+get_identifier(_X :: Y, InList, OutList) :-
+	get_identifier(Y, InList, OutList), !.
+
 
 % Base case for a single identifier
-get_identifer(X, InList, OutList) :- 
-	identifier(X), !, append(InList, [X], OutList), !.
+get_identifier(X, InList, OutList) :- 
+	(\+member(X, InList), identifier(X) -> append(InList, [X], OutList)); append(InList, [], OutList).
 
-
-
-
-
-
-
-count_assign(while _X do Y;, N) :- count_assign(Y, N), !.
-count_assign(while _X do Y, N) :- count_assign(Y, N), !.
-	
-count_assign(if _X then Y;, N) :- count_assign(Y, N), !.
-count_assign(if _X then Y, N) :- count_assign(Y, N), !.
-
-count_assign(if _X then Y else Z;, N) :- count_assign(Y, N1), count_assign(Z, N2), N is N1+N2, !.
-count_assign(if _X then Y else Z, N) :- count_assign(Y, N1), count_assign(Z, N2), N is N1+N2, !.
-
-count_assign(switch _X of Y;, N) :- count_assign(Y, N).
-count_assign(switch _X of Y, N) :- count_assign(Y, N).
-
-count_assign(_X :: Y;, N) :- count_assign(Y, N), !.
-count_assign(_X :: Y, N) :- count_assign(Y, N), !.
-
-count_assign(_;,0) :- !.
-
-isAssign(X=E) :- identifier(X), isExpr(E), !.
-
+% Predicate helpers
 isExpr(X) :- X =.. [F,A,B],
-	member(F, [+,-,*,/, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B).
+	member(F, [+,-,*,/, >, <, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B).
 	
 isExpr(X) :- identifier(X), ! ; value(X).
 
 identifier(X) :- atom(X),!.
 value(X) :- number(X),!.
 
-
-
-
 /*
 
-count_assign(
+Code = (
 while (x>0) do {
   switch (y+z) of {
 0 :: { if (x<10) then { a = 1 ; } else { a = 2; }; }; 1 ::{ if (y\=1) then {a=2; b=3;};}; default :: { a = 0 ; } ;
 };
-a=a+1; };
-, N).
+a=a+1; };), get_identifier(Code, [], ResList).
 
 */
