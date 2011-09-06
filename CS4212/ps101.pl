@@ -50,13 +50,7 @@ rest_statements       :- true.
 
 
 count_assign(S;Ss, N)   :- 
-
-	
 	(assignment(S) -> N1 is N+1, count_assign(Ss, N1), ! ; count_assign(Ss, N)).
-
-
-
-
 
 count_assign({S;Ss}, N) :- (assignment(S) -> N1 is N+1, count_assign(Ss, N1), ! ; count_assign(Ss, N)).
 count_assign({S;}, N)   :- assignment(S), N1 is N+1, writeln(N1).
