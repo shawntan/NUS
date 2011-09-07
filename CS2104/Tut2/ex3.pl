@@ -3,14 +3,6 @@
 :- op(960,fx, push).
 :- op(1099,yf,;).
 
-/*
-	Program = (
-		push 2;
-	),
-	exec(Program, Result).
-	
-*/
-
 exec(S;Ss, InStack, OutStack) :- 
 	exec(S,  InStack, OutStack1),
 	exec(Ss, OutStack1, OutStack), !.
