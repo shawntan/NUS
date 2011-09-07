@@ -115,6 +115,11 @@ Code = (
 		a=a+1; 
 	};), 
 
-get_identifier(Code, [], ResList).
+get_identifier(Code, [], ResList),
+
+writeln('====================================================='),
+write('The identifiers in the program are: '),
+writeln(ResList),
+writeln('=====================================================').
 
 */
