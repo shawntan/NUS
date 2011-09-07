@@ -13,49 +13,65 @@
 :- op(959,xfx,=).
 
 
-statement(S;Ss) :- statement(S;), rest_statements(Ss),!.
-statement({S}) :- writeln('{'), statement(S), writeln('}').
+statement(S;Ss) :- statement(S), rest_statements(Ss),!.
+
+% remove redundant braces.
+statement({S;}) :- nl, statement(S;), !.
+
+
+statement({S;Ss}) :- writeln(' {' ), statement(S;Ss), writeln('}' ).
 
 statement(while X do Y;) :- 
-	write('while '), write('('), statement(X), write(') '), statement(Y), !.
+	write('while '), isExpr(X), statement(Y), !.
+
+statement(while X do Y) :- 
+	write('while '), isExpr(X), statement(Y), !.
 	
 statement(if X then Y;) :- 
-	write('if '), write('('), statement(X), write(') '), statement(Y), !.	
-	
+	write('if '), isExpr(X), statement(Y), !.	
+
+statement(if X then Y) :- 
+	write('if '), isExpr(X), statement(Y), !.
+
 statement(if X then Y else Z;) :- 
-	write('if '), write('('), statement(X), write(') '), statement(Y), write('else '), statement(Z), !.
+	write('if '), isExpr(X), statement(Y), write('else '), statement(Z), !.
 
-statement(switch X of Y;) :- write('switch '), statement(X), statement(Y).
+statement(if X then Y else Z) :- 
+	write('if '), isExpr(X), statement(Y), write('else '), statement(Z), !.
 
-statement(X :: Y;) :-
+statement(switch X of Y;) :- write('switch '), isExpr(X),  statement(Y).
+statement(switch X of Y) :- write('switch '), isExpr(X),  statement(Y).
+
+
+statement(X :: {Y};) :-
+	write('case '), write(X), writeln(' :' ), statement(Y), writeln('break ;'), !.
+
+statement(X :: {Y}) :-
 	write('case '), write(X), write(' : ' ), statement(Y), writeln('break ;'), !.
 
-statement(X :: Y) :-
-	write('case '), write(X), write(' : ' ), statement(Y), writeln('break ;'), !.
-
-statement(X\=Y)  :- write(X), write('!='), write(Y).
-statement(X\=Y;) :- write(X), write('!='), writeln(Y;).
 
 statement(S;) :- writeln(S;).
-statement(S)  :- write(S). 
+statement(S)  :- writeln(S;). 
+
+% helper predicates
+isExpr(X) :- 
+	X =.. [F,A,B], 
+	member(F, [+,-,*,/, >, <, >=, \=, =<, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B), 
+	write('('), write(A), 
+	write(F), 
+	write(B), write(')').
+	
+isExpr(X) :- identifier(X), ! ; value(X).
+
+identifier(X) :- atom(X),!.
+value(X) :- number(X),!.
 
 
-if_statement(if _ then Y;) :- [Y]. 
+rest_statements(S;Ss) :- statement(S;), rest_statements(Ss).
+rest_statements(S;) :- statement(S;).
 
-assignment(_=_).
-
-rest_statements(S;Ss) :- statement(S), rest_statements(Ss).
 rest_statements(S)    :- statement(S).
 rest_statements       :- true.
-
-
-count_assign(S;Ss, N)   :- 
-	(assignment(S) -> N1 is N+1, count_assign(Ss, N1), ! ; count_assign(Ss, N)).
-
-count_assign({S;Ss}, N) :- (assignment(S) -> N1 is N+1, count_assign(Ss, N1), ! ; count_assign(Ss, N)).
-count_assign({S;}, N)   :- assignment(S), N1 is N+1, writeln(N1).
-count_assign(S;, N)     :- assignment(S), N1 is N+1, writeln(N1).
-
 
 
 /*
@@ -85,14 +101,22 @@ while (x>0) {
 
 Test Cases for overall:
 
-statement(
-while (x>0) do {
-  switch (y+z) of {
-0 :: { if (x<10) then { a = 1 ; } else { a = 2; }; }; 1 ::{ if (y\=1) then {a=2; b=3;};}; default :: { a = 0 ; } ;
-};
-a=a+1; };
-).
+Code = (
+	while (x<1) do { y=2; };
+	while (x>0) do {
+	  switch (y+z) of {
+		0 :: { if (x<10) then { a = 1 ; if (y\=1) then {a=2; b=3; if (y\=1) then {a=2; b=3;};}; if (y\=1) then {a=2; b=3;}; } else { if (y\=1) then {a=2; b=3;}; a = 2; }; }; 
+		1 :: { if (y\=1) then {a=2; b=3;}; while (x>1) do {yah=2;};}; 
+		default :: { a = 0 ; } ;
+	};
+	a=a+1; };
+),
+statement( Code ).
 
+Code = (
+	if (x<10) then { a = 1 ; if (x<10) then { a = 1 ; } else { a = 2; };} else { a = 2; };
+),
+statement( Code ).
 
 
 Test Cases for case:
