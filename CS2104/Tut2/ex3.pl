@@ -32,13 +32,13 @@ exec(add, InStack, OutStack) :-
 exec(sub;, InStack, OutStack) :- 
 	InStack  = [N1|InStack1],
 	InStack1 = [N2|InStack2],
-	N3 is N1-N2,
+	N3 is N2-N1,
 	append([N3], InStack2, OutStack).
 
 exec(sub, InStack, OutStack) :- 
 	InStack  = [N1|InStack1],
 	InStack1 = [N2|InStack2],
-	N3 is N1-N2,
+	N3 is N2-N1,
 	append([N3], InStack2, OutStack).		
 
 exec(mul;, InStack, OutStack) :- 
@@ -56,12 +56,12 @@ exec(mul, InStack, OutStack) :-
 exec(div;, InStack, OutStack) :- 
 	InStack  = [N1|InStack1],
 	InStack1 = [N2|InStack2],
-	N3 is N1/N2,
+	N3 is N2/N1,
 	append([N3], InStack2, OutStack).
 
 exec(div, InStack, OutStack) :- 
 	InStack  = [N1|InStack1],
 	InStack1 = [N2|InStack2],
-	N3 is N1/N2,
+	N3 is N2/N1,
 	append([N3], InStack2, OutStack).
 
