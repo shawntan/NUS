@@ -1,0 +1,180 @@
+// Exercise 1:
+
+// 1(a)
+int eax, ebx;
+unsigned char M[10000];
+
+void exec() {
+	
+loop:
+	if ( eax == ebx ) goto loop_exit;
+	if ( eax < ebx ) goto then_branch;
+	eax -= ebx;
+	goto end_if;
+then_branch: 	
+	ebx -= eax;
+	goto loop;
+	
+loop_exit: {}	
+}
+
+// 1(b)
+
+int eax, ebx, ecx, edx;
+unsigned char M[10000];
+
+// eax stores the final result
+// ebx is the base address of the array, a
+
+int main() {
+	memcpy(*(&M[ebx], a, 20);
+	exec();
+	printf("%d", eax);
+}
+
+void exec() {
+	
+	ecx = M[ebx+4]; // a[1]
+	edx = M[ebx+8]; // a[2]
+	
+	eax = ecx;
+	eax += edx;
+	eax *= ecx;
+	eax *= -1;
+	eax += M[ebx]; 	  // eax + a[0]
+	eax += M[ebx+12];  // eax + a[3]
+	eax <<= M[ebx+16]; // eax + a[4]
+}
+
+
+// 1(c)
+int eax, ebx;
+void M[10000];
+ 
+*(void*)&M[0] = &&L1; 
+*(void*)&M[1] = &&L2; 
+*(void*)&M[2] = &&L3; 
+*(void*)&M[3] = &&L4; 
+
+// Assuming ebx = x
+void exec() {
+
+	if ( ebx > 3 ) goto return_default;
+	if ( ebx < 0 ) goto return_default;
+	goto *caseptr[x-1];
+	
+return_default: 
+	eax = -1;
+return_thirteen: 
+	eax = 13;
+return_eight: 
+	eax = 8;
+return_five: 
+	eax = 5;
+return_three: 
+	eax = 3;	
+}
+
+
+int f(int x) {
+	void *caseptr[4] = {&&L1, &&L2, &&L3, &&L4};
+	if ( x > 3 ) goto return_default;
+	if ( x < 0 ) goto return_default;
+	goto *caseptr[x-1];
+L1: 
+	goto return_thirteen;
+L2: 
+	goto return_eight;
+L3: 
+	goto return_five;
+L4: 
+	goto return_three;
+
+return_default: 
+	return -1;
+return_thirteen: 
+	return 13;
+return_eight: 
+	return 8;
+return_five: 
+	return 5;
+return_three: 
+	return 3;
+}
+
+
+// Exercise 2
+
+int b = * (int*)&a[0] ;
+
+The value of b is an int. Since "a" is defined as a unsigned char, each element is 1 byte.
+However, an int is 4 bytes. Therefore, the value of b is all 4 elements of the array. 
+Since the IA-32 (and Pentium architectures in general) uses little endian notation, the value
+that gets stored in b is the integer representation of '\004\003\002\001'.
+
+Converted to binary: 0000 0100 0000 0011 0000 0010 0000 0001 = 67305985
+
+Hence, b = 67305985;
+
+// Unsigned == Unsigned Integer
+c is the same as a, since b is 4 bytes, b will fill up all the 4 bytes of c[].
+
+The value of d is a short. A short is 2 bytes. Therefore, the value of b is the third and fourth 
+elements. Again, because of little endian notation, the value that gest stored in d is the integer
+representation of '\004\003'. Hence, d = 1072;
+
+b <<= 1 = 0000 1000 0000 0110 0000 0100 000 0010 
+
+When assigned to a, as an unsigned char: a = {2, 4, 6, '\b'}
+
+
+// Exercise 3 
+
+// C Code
+
+#include <limits.h>
+
+int main() {
+	int a[] = {10,2,34,4,5};
+	min(a,10;) 
+}
+
+int min(a, n) {
+	smallest = INT_MAX; 
+	index = 0;
+	
+	while ( index < n ) {
+		if ( a[index] < smallest ) {
+			a[index] = smallest;
+		}
+		index++;
+	}
+	return smallest;
+}
+
+// Translated VAL
+
+int eax, ebx, ecx, edx, esi;
+unsigned char M[10000];
+// ebx : based address of array
+// ecx : the number of elements.
+// edx : the current index
+// esi : computed address of current element
+void exec() {
+	eax = 2147483648;
+	edx = 0;
+
+loop:
+	if ( edx == ecx ) goto loop_exit;
+	esi = edx;  // Array index ...
+	esi <<= 2;  // Multiplied by 4
+	esi += ebx; // + base address
+	if ( *(int *)&M[esi] <= eax ) goto then_branch;
+	goto end_if;
+then_branch:	
+	eax = *(int *)&M[esi];
+end_if:
+	edx += 1;
+	goto loop;
+loop_exit: {}
+}
