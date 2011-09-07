@@ -60,7 +60,9 @@ count_assign(_;,0) :- !.
 isAssign(X=E) :- identifier(X), isExpr(E), !.
 
 isExpr(X) :- 
-	X =.. [F,A,B], member(F, [+,-,*,/, >, <, >=, =<, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B).
+	X =.. [F,A,B], 
+	member(F, [+,-,*,/, >, <, >=, =<, mod, and, or, /\, \/, <<, >>, xor]), !, 
+	isExpr(A), isExpr(B).
 	
 isExpr(X) :- identifier(X), ! ; value(X).
 

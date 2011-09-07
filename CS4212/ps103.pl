@@ -42,7 +42,8 @@ get_identifier(X=E, InList, OutList) :-
 % Operators
 get_identifier(S, InList, OutList) :- 
 	S =.. [F,A,B],
-	member(F, [+,-,*,/, >, <, >=, =<, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B),
+	member(F, [+,-,*,/, >, <, >=, =<, mod, and, or, /\, \/, <<, >>, xor]), !, 
+	isExpr(A), isExpr(B),
 	get_identifier(A, InList, OutList1),
 	get_identifier(B, OutList1, OutList), !.
 
@@ -96,8 +97,10 @@ get_identifier(X, InList, OutList) :-
 	(\+member(X, InList), identifier(X) -> append(InList, [X], OutList)); append(InList, [], OutList).
 
 % Predicate helpers
-isExpr(X) :- X =.. [F,A,B],
-	member(F, [+,-,*,/, >, <, >=, =<, mod, and, or, /\, \/, <<, >>, xor]), !, isExpr(A), isExpr(B).
+isExpr(X) :- 
+	X =.. [F,A,B], 
+	member(F, [+,-,*,/, >, <, >=, =<, mod, and, or, /\, \/, <<, >>, xor]), !, 
+	isExpr(A), isExpr(B).
 	
 isExpr(X) :- identifier(X), ! ; value(X).
 
