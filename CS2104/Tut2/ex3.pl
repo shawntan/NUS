@@ -3,6 +3,10 @@
 :- op(960,fx, push).
 :- op(1099,yf,;).
 
+exec(S;Ss, OutStack) :- 
+	exec(S,  [], OutStack1),
+	exec(Ss, OutStack1, OutStack), !.
+
 exec(S;Ss, InStack, OutStack) :- 
 	exec(S,  InStack, OutStack1),
 	exec(Ss, OutStack1, OutStack), !.
