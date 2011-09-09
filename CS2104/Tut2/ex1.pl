@@ -4,8 +4,8 @@
 
 reverse([], []).
 reverse([H|T], RevList) :- 
-	append(RevList1, [H] , RevList),
-	reverse(T, RevList1), !.
+	reverse(T, RevList1),
+	append(RevList1, [H] , RevList), !.
 
 % Base Case: Succeeds if both Lists are single element, and they both contains the
 % 			 same element.
