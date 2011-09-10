@@ -108,15 +108,13 @@ evalExpr(X ?? Y ++ Z, Val, Env) :- !,
 	count_op(Y ++ Z, ++, C),				
 	(integer(X), Vx >= 1, Vx =< C+1 -> selectNthExpr(Y ++ Z, X, Val, Env); Val = 0).
 	
-	
-	
 % Select the Nth Expr given an operator	
 evalExpr(X ?? Y, Val, Env) :- !,
 	evalExpr(X, Vx, Env),		
 	(integer(X), Vx = 1 -> evalExpr(Y, Val, Env); Val = 0).	
 	
 % empty_assoc(Empty), selectNthExpr(4++3+22, 1, Val, Empty).
-	
+% select the Nth expression. Currently using only '++'.	
 selectNthExpr(_++Y, C, Val, Env):- C > 1, C1 is C-1, !, selectNthExpr(Y, C1, Val, Env).
 selectNthExpr(X++_, 1, Val, Env) :- !, evalExpr(X, Val, Env).		
 selectNthExpr(X, 1, Val, Env) :- !, evalExpr(X, Val, Env).		
@@ -131,18 +129,7 @@ selectNthExpr(X, 1, Val, Env) :- !, evalExpr(X, Val, Env).
    writeln('With initial values x=10 and y=20'),
    empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy), put_assoc(z,Exy,30,Exyz),
    evalExpr(Expr,Value, Exyz), write('Value returned: '), writeln(Value).*/
-/*
- *  Three-address intermediate code with jumps.
- *  Each instruction may be labelled:
- *     label :: instruction ;
- *
- *  Added non-conditional jumps, of the form:
- *     goto Expr
- *  where Expr should evaluate to a label+offset
- *
- *  Added conditional jumps, of the form:
- *     if Cond goto Expr
- */
+
 
 :- op(1099,yf,;).
 :- op(950,fx,goto).
@@ -388,6 +375,45 @@ compile((X ? Y : Z), Code, R) :- !,
                    Cz                   ;
                    R = Qz               ;
             Lout ::                      ).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+compile((X ?? Y), Code, R) :- !,
+	newvar(R), newlabel(Default), newlabel(Exit),
+	count_op(Y, ++, C), C1 is C+1,
+	compile(X, Cx, Qx),
+	compile(Y, 1, Qx, Cy, R),
+	Code = (	
+		Cx						  ;
+		if Qx < 1 goto Default	  ;
+		if Qx > C1 goto Default   ;
+		Cy						  ;
+		Default ::				  ;
+			R = 0				  ;
+		Exit ::					   ).
+
+compile((E ++ F), N, Qx, Code, R) :- !,
+	newlabel(Dest),
+	compile(E, Ce, Qe), N1 is N+1,
+	compile(F, N1, Qx, Cf, R),
+	Code = (
+		if Qx == N goto Dest	;
+		Cf						;		
+		Dest ::					;
+			Ce					;
+			R = Qe				;
+	).
+	
+compile(E, N, Qx, Code, R) :- !,
+	newlabel(Dest),
+	compile(E, Ce, Qe),
+	Code = (
+		if Qx == N goto Dest	;
+		Dest ::					;
+			Ce					;
+			R = Qe				;
+	).		
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Test compiler
 %
