@@ -35,8 +35,6 @@ splitterms(X, [1*X], []).
 groupterms([X|Rest],[Final|Grouped]) :-
 	countterms(X,Rest,Final,Cleaned),
 	groupterms(Cleaned,Grouped).
-groupterms([],[]).
-
 countterms(N*X,[M*X|Rest],Final,Cleaned) :-
 	number(N),number(M),
 	S is N+M,
