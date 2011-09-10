@@ -106,7 +106,7 @@ evalExpr(X ? Y : Z, Val, Env) :- !,
 evalExpr(X ?? Y ++ Z, Val, Env) :- !,
 	evalExpr(X, Vx, Env),
 	count_op(Y ++ Z, ++, C),				
-	(integer(X), Vx >= 1, Vx =< C+1 -> (selectNthExpr(Y ++ Z, X, Val, Env), Val = 1); Val = 0).
+	(integer(X), Vx >= 1, Vx =< C+1 -> selectNthExpr(Y ++ Z, X, Val, Env); Val = 0).
 	
 	
 	
