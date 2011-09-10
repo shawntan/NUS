@@ -419,7 +419,8 @@ compile(E, N, Qx, Code, R) :- !,
 %
 /*:- resetnewvar, resetnewlabel.*/
 
-/*:- Expression = (2<3),
+/*
+   Expression = (1<3) ?? 1,
    writeln('=================================='),
    write('Testing compilation of expression:'), writeln(Expression),
    compile(Expression,Code,Res),
@@ -436,48 +437,6 @@ compile(E, N, Qx, Code, R) :- !,
    write('Execution of object code '),
    write(Res),write(' = '),writeln(ObjVal).
 
-
-:- resetnewvar, resetnewlabel.
-
-:- Expression = ((1+(2<3) < x + y * z)+10),
-   writeln('=================================='),
-   write('Testing compilation of expression:'), writeln(Expression),
-   isExpr(Expression),
-   compile(Expression,Code,Res),
-   writeln('Compiled code:'),
-   writeTac(Code),
-   % tacToObj(Code,Obj),
-   % writeln('Resulting object code:'),
-   % writeObjectcode(Obj,0),
-   write('Evaluation of expression:'),
-   list_to_assoc([x-5,y-6,z-7],Start),
-   evalExpr(Expression,Val,Start),
-   writeln(Val),
-   execTAC(Start,Code,Results),
-   get_assoc(Res,Results,ObjVal),
-   write('Execution of object code '),
-   write(Res),write(' = '),writeln(ObjVal).
-
-:- resetnewvar, resetnewlabel.
-
-:- Expression = ((2<((3<x)?y:z))*(10+x-z/y)),
-   writeln('=================================='),
-   write('Testing compilation of expression:'), writeln(Expression),
-   isExpr(Expression),
-   compile(Expression,Code,Res),
-   writeln('Compiled code:'),
-   writeTac(Code),
-   % tacToObj(Code,Obj),
-   % writeln('Resulting object code:'),
-   % writeObjectcode(Obj,0),
-   write('Evaluation of expression:'),
-   list_to_assoc([x-5,y-6,z-7],Start),
-   evalExpr(Expression,Val,Start),
-   writeln(Val),
-   execTAC(Start,Code,Results),
-   get_assoc(Res,Results,ObjVal),
-   write('Execution of object code '),
-   write(Res),write(' = '),writeln(ObjVal).
 */
 
 
