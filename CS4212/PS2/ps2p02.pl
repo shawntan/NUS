@@ -1,24 +1,10 @@
-
 /*
-High-level language: arithmetic expressions (no booleans)
-Low-level language: three adress code with no jumps
-For each language, we have the following elements:
-  * operators that allow convenient syntax
-  * syntax checker that validates strings of the language
-  * operational semantics given in the form of an interpreter or evaluator
-
-Finally, we provide a compiler from the high-level language to
-the low level one.
+	Benjamin Tan Wei Hao
+	U077129N
+	
+	My additions are surrounded by '%%%%%%%%%%'.
 */
 
-/*
- *  Arithmetic expressions with the binary operators:
- *   + - * / mod and(logical conjunction) or(logical disjunction)
- *   /\(bitwise conjunction) \/(bitwise disjunction) xor(bitwise exclusive or)
- *   >>(shift left) <<(shift right)
- *   and unary operators: +, -, \(bitwise inversion)
- *
- */
 
 % Operator declarations
 :- op(800,yfx,and).  % Equivalent to && in C

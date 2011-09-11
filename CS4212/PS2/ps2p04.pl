@@ -1,13 +1,18 @@
+/*
+	Benjamin Tan Wei Hao
+	U077129N
+	
+	My additions are surrounded by '%%%%%%%%%%'.
+*/
+
 % Operator declarations
 :- op(800,yfx,and).
 :- op(810,yfx,or).
 
 % Syntax checker
-%isExpr(X ? Y : Z) :- isExpr(X), isExpr(Y), isExpr(Z). /* new */
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 isExpr(X ? Y) :- isExpr(X), isExpr(Y). 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 isExpr(X) :-
         X =.. [F,A,B],
@@ -65,16 +70,14 @@ evalExpr(X \= Y,Val,Env) :- !,evalExpr(X,Vx,Env), evalExpr(Y,Vy,Env),
         (   Vx \= Vy -> Val = 1 ; Val = 0 ).
 evalExpr(\+ X,Val,Env) :- !,evalExpr(X,Vx,Env), Vx \= 0 -> Val is 0 ; Val is 1 .
 
-%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ? Operator
 evalExpr(X ? Y, Val, Env) :- !,
         evalExpr(X,Vx,Env), (Vx \= 0 -> evalExpr(Y,Val,Env) ; Val is 0).
 
-/*evalExpr(X ? Y : Z, Val, Env) :- !,
-        evalExpr(X,Vx,Env), (Vx \= 0 -> evalExpr(Y,Val,Env) ; evalExpr(Z,Val,Env)).*/
 
 % Test evaluator
-/*:- Expr = (x < y) ? y,
+:- Expr = (x < y) ? y,
    writeln('================================='),
    write('Testing evaluation for expression: '), writeln(Expr),
    writeln('With initial values x=10 and y=20'),
@@ -86,8 +89,8 @@ evalExpr(X ? Y, Val, Env) :- !,
    write('Testing evaluation for expression: '), writeln(Expr),
    writeln('With initial values x=10 and y=20'),
    empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy),
-   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).*/
-
+   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /*
  *  Three-address intermediate code with jumps.
@@ -395,6 +398,7 @@ compile(Cond, Code, R) :-
         C2 = ( if Cond1 goto Skip ; R = 0 ; goto Lout ; Skip::R = 1 ; Lout ::  ),
         Code = (C1 ; C2).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 compile((X ? Y), Code, R) :- !,
         newvar(R), newlabel(Skip), newlabel(Lout),
         compile(X,Cx,Qx),
@@ -407,21 +411,7 @@ compile((X ? Y), Code, R) :- !,
                    Cy                   ;
                    R = Qy               ;
             Lout ::                      ).
-
-/*compile((X ? Y : Z), Code, R) :- !,
-        newvar(R), newlabel(Skip), newlabel(Lout),
-        compile(X,Cx,Qx),
-        compile(Y,Cy,Qy),
-        compile(Z,Cz,Qz),
-        Code = (   Cx                   ;
-                   if Qx == 0 goto Skip ;
-                   Cy                   ;
-                   R = Qy               ;
-                   goto Lout            ;
-            Skip ::                     ;
-                   Cz                   ;
-                   R = Qz               ;
-            Lout ::                      ).*/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /*% Test compiler
 %
@@ -488,7 +478,7 @@ compile((X ? Y), Code, R) :- !,
    write('Execution of object code '),
    write(Res),write(' = '),writeln(ObjVal).*/
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- Expression = ((2<((3<x) ? z))*(10+x-z/y)),
    writeln('=================================='),
    write('Testing compilation of expression:'), writeln(Expression),
@@ -507,7 +497,7 @@ compile((X ? Y), Code, R) :- !,
    get_assoc(Res,Results,ObjVal),
    write('Execution of object code '),
    write(Res),write(' = '),writeln(ObjVal).
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
