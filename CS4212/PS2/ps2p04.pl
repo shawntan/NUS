@@ -1,42 +1,14 @@
-
-/*
- * Derived from 01.pl
- * Adds 'booleans as integers' to arithmetic expressions (i.e. false=0, true=1)
- * Adds jumps and 'no operation' to TAC
- *
- * As before we have:
- *   - syntax checker and evaluator for expressions
- *   - syntax checker and evaluator for TAC
- *   - compiler from expressions to TAC
- *
- * The acid test of the compiler is to verify that the result
- * of evaluating an expression is identical to the result
- * obtained by first compiling the expression into TAC, and then
- * evaluating the compiled TAC code.
- */
-
-/*
- *  Arithmetic expressions with the binary operators.
- *
- *  All the rules in 01.pl are still present, some slightly changed.
- *  Changed rules are marked by comments.
- *
- *  Added comparison operators: <, >, =< (less than),
- *  >= (greater than), ==, \= (not equal). Their translation
- *  will require jumps in the low level language.
- *
- *  Added the negation operator \+, equivalent to ! in C
- *
- *  Added the ?: operator, similar to C (translation requires jumps as well)
- *
- */
-
 % Operator declarations
 :- op(800,yfx,and).
 :- op(810,yfx,or).
 
 % Syntax checker
-isExpr(X ? Y : Z) :- isExpr(X), isExpr(Y), isExpr(Z). /* new */
+%isExpr(X ? Y : Z) :- isExpr(X), isExpr(Y), isExpr(Z). /* new */
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+isExpr(X ? Y) :- isExpr(X), isExpr(Y). 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 isExpr(X) :-
         X =.. [F,A,B],
         % list augmented with new operators
@@ -51,11 +23,11 @@ isExpr(X) :-
         integer(X),! ; atom(X), \+ atom_prefix(X,v_).
 
 % Test syntax checker
-:- Expr = ( 3+ -2 * 4 mod (x -3/y) << (100 >> 2*(2<3)) * (-2 * +3 + (-2 - (1==1))*(10+2/(1 xor 2))) /\
+/*:- Expr = ( 3+ -2 * 4 mod (x -3/y) << (100 >> 2*(2<3)) * (-2 * +3 + (-2 - (1==1))*(10+2/(1 xor 2))) /\
           (-1 <<20 \/ 1 and 1 or ((x>y)?x:y)) ),
    writeln('===================================='),
    write('Testing syntax checker for expression: '), writeln(Expr),
-   isExpr(Expr), writeln('Passed.').
+   isExpr(Expr), writeln('Passed.').*/
 
 /*
  * Operational semantics: evaluator for arith expr with bool
@@ -92,31 +64,30 @@ evalExpr(X == Y,Val,Env) :- !,evalExpr(X,Vx,Env), evalExpr(Y,Vy,Env),
 evalExpr(X \= Y,Val,Env) :- !,evalExpr(X,Vx,Env), evalExpr(Y,Vy,Env),
         (   Vx \= Vy -> Val = 1 ; Val = 0 ).
 evalExpr(\+ X,Val,Env) :- !,evalExpr(X,Vx,Env), Vx \= 0 -> Val is 0 ; Val is 1 .
-evalExpr(X ? Y : Z, Val, Env) :- !,
-        evalExpr(X,Vx,Env), (Vx \= 0 -> evalExpr(Y,Val,Env) ; evalExpr(Z,Val,Env)).
+
+%%%%%%%%
+% ? Operator
+evalExpr(X ? Y, Val, Env) :- !,
+        evalExpr(X,Vx,Env), (Vx \= 0 -> evalExpr(Y,Val,Env) ; Val is 0).
+
+/*evalExpr(X ? Y : Z, Val, Env) :- !,
+        evalExpr(X,Vx,Env), (Vx \= 0 -> evalExpr(Y,Val,Env) ; evalExpr(Z,Val,Env)).*/
 
 % Test evaluator
-:- Expr = (x < y) ? x : y,
+/*:- Expr = (x < y) ? y,
    writeln('================================='),
    write('Testing evaluation for expression: '), writeln(Expr),
    writeln('With initial values x=10 and y=20'),
    empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy),
    evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).
 
-:- Expr = (y < x) * (y -x) / - 2,
+:- Expr = (x > y) ? y,
    writeln('================================='),
    write('Testing evaluation for expression: '), writeln(Expr),
    writeln('With initial values x=10 and y=20'),
    empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy),
-   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).
+   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).*/
 
-:- Expr = ( 3+ -2 * 4 mod (x -3/y) < (100 > 2) * (-2 * +3 + (-2 - 1)*(10+2/(1 xor 2))) /\
-          (-1 <<20 \/ 1 and 1 or (\+ 1)) ),
-   writeln('================================='),
-   write('Testing evaluation for expression: '), writeln(Expr),
-   writeln('With initial values x=10 and y=20'),
-   empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy),
-   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).
 
 /*
  *  Three-address intermediate code with jumps.
@@ -197,7 +168,7 @@ writeTac((X::)) :- !, alignLabel(X,X1), write(X1), writeln((::)).
 writeTac(X) :- write('            '),writeln(X).
 
 % Test for TAC syntax checker
-:- Code = (
+/*:- Code = (
            x = 3 ;
            y = 4 ;
   label ::       ;
@@ -209,7 +180,7 @@ writeTac(X) :- write('            '),writeln(X).
           ),
         writeln('================================'),
         writeln('Testing syntax checking for TAC:'), writeTac(Code),
-        isTac(Code), writeln('Passed.').
+        isTac(Code), writeln('Passed.').*/
 
 /*
  * To define the operational semantics, we need a translation step
@@ -284,7 +255,7 @@ writeObjectcode(Obj,IP) :-
         IPnext is IP + 1, writeObjectcode(Obj,IPnext).
 
 % Test translation to object code
-:- Code = (
+/*:- Code = (
              x = 3 ;
              y = 4 ;
 label     ::       ;
@@ -302,7 +273,7 @@ again     :: z = z + x ;
           writeTac(Code),
           tacToObj(Code,Obj),
           writeln('Translated object code:'),
-          writeObjectcode(Obj,0).
+          writeObjectcode(Obj,0).*/
 
 % Operational semantics of object code
 % given as an interpreter -- replaces execTac of 01.pl
@@ -326,7 +297,7 @@ execObj(EnvIn,IP,Code,EnvOut) :-
 
 execTAC(EnvIn,Code,EnvOut) :- tacToObj(Code,Obj), execObj(EnvIn,0,Obj,EnvOut).
 
-% Test of object code interpreter
+/*% Test of object code interpreter
 :- Code = (
             x = 3 ;
             y = 4 ;
@@ -373,7 +344,7 @@ again::     z = z + x ;
           write('Values produced: x='),
           get_assoc(x,EnvOut,X), write(X),
           write(' y='), get_assoc(y,EnvOut,Y), write(Y),
-          write(' z='), get_assoc(z,EnvOut,Z), writeln(Z).
+          write(' z='), get_assoc(z,EnvOut,Z), writeln(Z).*/
 
 /********************************************
  * Compiler from expression language to TAC
@@ -423,7 +394,21 @@ compile(Cond, Code, R) :-
         compile(X-Y,C1,Q), Cond1 =.. [Op,Q,0],
         C2 = ( if Cond1 goto Skip ; R = 0 ; goto Lout ; Skip::R = 1 ; Lout ::  ),
         Code = (C1 ; C2).
-compile((X ? Y : Z), Code, R) :- !,
+
+compile((X ? Y), Code, R) :- !,
+        newvar(R), newlabel(Skip), newlabel(Lout),
+        compile(X,Cx,Qx),
+        compile(Y,Cy,Qy),
+        Code = (   Cx                   ;
+                   if Qx \= 0 goto Skip ;
+                   R = 0                ;
+                   goto Lout            ;
+            Skip ::                     ;
+                   Cy                   ;
+                   R = Qy               ;
+            Lout ::                      ).
+
+/*compile((X ? Y : Z), Code, R) :- !,
         newvar(R), newlabel(Skip), newlabel(Lout),
         compile(X,Cx,Qx),
         compile(Y,Cy,Qy),
@@ -436,9 +421,9 @@ compile((X ? Y : Z), Code, R) :- !,
             Skip ::                     ;
                    Cz                   ;
                    R = Qz               ;
-            Lout ::                      ).
+            Lout ::                      ).*/
 
-% Test compiler
+/*% Test compiler
 %
 :- resetnewvar, resetnewlabel.
 
@@ -482,8 +467,29 @@ compile((X ? Y : Z), Code, R) :- !,
    write(Res),write(' = '),writeln(ObjVal).
 
 :- resetnewvar, resetnewlabel.
+*/
 
-:- Expression = ((2<((3<x)?y:z))*(10+x-z/y)),
+/*:- Expression = ((2<((3<x) ? y))*(10+x-z/y)),
+   writeln('=================================='),
+   write('Testing compilation of expression:'), writeln(Expression),
+   isExpr(Expression),
+   compile(Expression,Code,Res),
+   writeln('Compiled code:'),
+   writeTac(Code),
+   % tacToObj(Code,Obj),
+   % writeln('Resulting object code:'),
+   % writeObjectcode(Obj,0),
+   write('Evaluation of expression:'),
+   list_to_assoc([x-5,y-6,z-7],Start),
+   evalExpr(Expression,Val,Start),
+   writeln(Val),
+   execTAC(Start,Code,Results),
+   get_assoc(Res,Results,ObjVal),
+   write('Execution of object code '),
+   write(Res),write(' = '),writeln(ObjVal).*/
+
+
+:- Expression = ((2<((3<x) ? z))*(10+x-z/y)),
    writeln('=================================='),
    write('Testing compilation of expression:'), writeln(Expression),
    isExpr(Expression),
@@ -501,11 +507,6 @@ compile((X ? Y : Z), Code, R) :- !,
    get_assoc(Res,Results,ObjVal),
    write('Execution of object code '),
    write(Res),write(' = '),writeln(ObjVal).
-
-
-
-
-
 
 
 
