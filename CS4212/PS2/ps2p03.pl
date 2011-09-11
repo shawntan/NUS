@@ -1,3 +1,10 @@
+/*
+	Benjamin Tan Wei Hao
+	U077129N
+	
+	My additions are surrounded by '%%%%%%%%%%'.
+*/
+
 % Operator declarations
 :- op(800,yfx,and).  % Equivalent to && in C
 :- op(810,yfx,or).   % Equivalent to || in C
@@ -15,24 +22,18 @@ isExpr(X) :- % identifiers : must not begin with "v_" -- reserved for internally
         integer(X),! ; atom(X), \+ atom_prefix(X,v_).
 
 % Test syntax checker
-
-/*:- Expr = ( z = 2 + (x = 3 + (y=2+2)) ),
+:- Expr = ( y = (3+ -2) * (z=4) mod (x -3/y) << (100 >> 2) * 
+            (- 2 * +3 + (-2 - 1)*(10+2/(1 xor 2))) /\ 
+            (-1 <<20 \/ 1 and 1 or 1) ),
    writeln('====================================='),
    write('Testing syntax checker for expression: '), writeln(Expr),
-   isExpr(Expr), writeln('Passed.').*/
+   isExpr(Expr), writeln('Passed.').
 
 % Operational semantics: evaluator for arithmetic expressions
 % Based on an environment that defines values for the variables
 % appearing in the expression
 
-:- op(1100,xfy,=).   % Equivalent to || in C
-
-
 evalExpr(E,E,_) :- integer(E),!.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Assignment statements change the environmnt.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 evalExpr(E,Val,Env) :- atom(E),!,get_assoc(E,Env,Val).
 evalExpr(X+Y,Val,Env) :- !,evalExpr(X,Vx,Env), evalExpr(Y,Vy,Env), Val is Vx+Vy.
 evalExpr(X-Y,Val,Env) :- !,evalExpr(X,Vx,Env), evalExpr(Y,Vy,Env), Val is Vx-Vy.
@@ -49,36 +50,16 @@ evalExpr(X >> Y,Val,Env) :- !,evalExpr(X,Vx,Env), evalExpr(Y,Vy,Env), Val is Vx 
 evalExpr(+ X,Val,Env) :- !,evalExpr(X,Vx,Env), Val is Vx .
 evalExpr(- X,Val,Env) :- !,evalExpr(X,Vx,Env), Val is - Vx .
 evalExpr(\ X,Val,Env) :- !,evalExpr(X,Vx,Env), Val is \ Vx .
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-evalExpr(X=Y,Val,Env) :- !, evalExpr(Y,Vy,Env), put_assoc(X, Env0, Vy, Env0), Val is Vy.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+evalExpr(_X=Y,Val,Env) :- !, evalExpr(Y,Vy,Env), Val is Vy.
 
 % Test evaluator
-:- empty_assoc(Empty), put_assoc(x,Empty,0,Ex), put_assoc(y,Ex,0,Exy), put_assoc(z,Exy,0,Exyz),
-   evalExpr(x=2+(y=3+4)+5+(z=3+5), Value, Exyz), 
-
-   write('Value returned: '), writeln(Value),
-   writeln(Env).
-
-
-
-/*:- Expr = (y << x) * (y -x) / - 2, isExpr(Expr),
-   writeln('====================================='),
-   write('Testing evaluation for expression: '), writeln(Expr),
-   writeln('With initial values x=10 and y=20'),
-   empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy),
-   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).
-
-:- Expr = ( 3+ -2 * 4 mod (x -3/y) << (100 >> 2) * (-2 * +3 + (-2 - 1)*(10+2/(1 xor 2))) /\
-          (-1 <<20 \/ 1 and 1 or 1) ),
+:- Expr = (x = 2+3+(y=2)),
    isExpr(Expr),
    writeln('====================================='),
    write('Testing evaluation for expression: '), writeln(Expr),
    writeln('With initial values x=10 and y=20'),
    empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy),
-   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).*/
+   evalExpr(Expr,Value,Exy), write('Value returned: '), writeln(Value).
 
 /*
  *  Three-address intermediate code, currently without jumps.
@@ -107,7 +88,7 @@ isTac(X;) :- isTac(X),!. % single instruction may be terminated by semicolon
 isTac((X;Y)) :- isTac(X), isTac(Y).
 
 % Test TAC syntax checker
-:- Code = (
+/*:- Code = (
          x = y + 10 ;
          y = y + 1 ;
          y = y * x ;
@@ -118,7 +99,7 @@ isTac((X;Y)) :- isTac(X), isTac(Y).
    writeln('Syntax checking TAC code:'),
    writeln(Code),
    isTac(Code),
-   writeln('Passed.').
+   writeln('Passed.').*/
 
 /*
  * Operational semantics for TAC in the form of an interpreter
@@ -189,13 +170,11 @@ resetnewvar :-
 compile(E,(X=E),X) :- integer(E),!,newvar(X).
 compile(E,(X=E),X) :- atom(E),!,newvar(X).
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 compile(X=Y,Code,R) :- !,
-        compile(Y,Cy,Ry), 
-		newvar(R1),
-		compile(X=Ry, Cx, R),
-        Code = ( Cy ; R1 = Ry ; Cx; ).
-
+		compile(Y,Cy,Qy), newvar(R),
+        Code = ( Cy ; X = Qy ; R = X; ).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 compile(X+Y,Code,R) :- !,
         compile(X,Cx,Rx), compile(Y,Cy,Ry),
@@ -244,6 +223,29 @@ writeTac(X) :- write('            '),writeln(X).
 
 % Test the compiler: result of interpreting HL code must
 % be the same as result of interpreting TAC produced by compilation
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+:- Expr = (1+w+(x=2+(y=10+30+(z=2+10+30)))),
+    isExpr(Expr),
+	writeln('====================================='),
+        write('Testing the compilation of expression:'), writeln(Expr),
+        writeln('with initial values w = 10'),
+        empty_assoc(EmptyEnv), % the start environment is empty
+        execTac(EmptyEnv,(w=10),Env),
+        evalExpr(Expr,ResultEval,Env), % interpret HL code
+        compile(Expr,Code,ResultVar), isTac(Code),
+        writeln('Compiled code:'),
+        writeTac(Code),
+        execTac(Env,Code,ResultEnv), % interpret compiled TAC code
+        get_assoc(ResultVar,ResultEnv,ResultCode),
+        write('Value after evaluation:'), % print results for comparison
+        writeln(ResultEval),
+        write('Value after execution of compiled code:'),
+        writeln(ResultCode),
+		writeln(ResultEnv).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 /*:- Expr = (((1+2)*(20-10)/3+(1<<5)>>3 xor (- 1) )*(10+20/2)+x*y),
     isExpr(Expr),
 	writeln('====================================='),

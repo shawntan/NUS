@@ -413,72 +413,9 @@ compile((X ? Y), Code, R) :- !,
             Lout ::                      ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/*% Test compiler
-%
+% Test compiler
 :- resetnewvar, resetnewlabel.
 
-:- Expression = (2<3),
-   writeln('=================================='),
-   write('Testing compilation of expression:'), writeln(Expression),
-   compile(Expression,Code,Res),
-   writeln('Compiled code:'),
-   writeTac(Code),
-   % tacToObj(Code,Obj),
-   % writeln('Resulting object code:'),
-   % writeObjectcode(Obj,0),
-   write('Evaluation of expression:'),
-   empty_assoc(Empty), evalExpr(Expression,Val,Empty),
-   writeln(Val),
-   execTAC(Empty,Code,Results),
-   get_assoc(Res,Results,ObjVal),
-   write('Execution of object code '),
-   write(Res),write(' = '),writeln(ObjVal).
-
-
-:- resetnewvar, resetnewlabel.
-
-:- Expression = ((1+(2<3) < x + y * z)+10),
-   writeln('=================================='),
-   write('Testing compilation of expression:'), writeln(Expression),
-   isExpr(Expression),
-   compile(Expression,Code,Res),
-   writeln('Compiled code:'),
-   writeTac(Code),
-   % tacToObj(Code,Obj),
-   % writeln('Resulting object code:'),
-   % writeObjectcode(Obj,0),
-   write('Evaluation of expression:'),
-   list_to_assoc([x-5,y-6,z-7],Start),
-   evalExpr(Expression,Val,Start),
-   writeln(Val),
-   execTAC(Start,Code,Results),
-   get_assoc(Res,Results,ObjVal),
-   write('Execution of object code '),
-   write(Res),write(' = '),writeln(ObjVal).
-
-:- resetnewvar, resetnewlabel.
-*/
-
-/*:- Expression = ((2<((3<x) ? y))*(10+x-z/y)),
-   writeln('=================================='),
-   write('Testing compilation of expression:'), writeln(Expression),
-   isExpr(Expression),
-   compile(Expression,Code,Res),
-   writeln('Compiled code:'),
-   writeTac(Code),
-   % tacToObj(Code,Obj),
-   % writeln('Resulting object code:'),
-   % writeObjectcode(Obj,0),
-   write('Evaluation of expression:'),
-   list_to_assoc([x-5,y-6,z-7],Start),
-   evalExpr(Expression,Val,Start),
-   writeln(Val),
-   execTAC(Start,Code,Results),
-   get_assoc(Res,Results,ObjVal),
-   write('Execution of object code '),
-   write(Res),write(' = '),writeln(ObjVal).*/
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 :- Expression = ((2<((3<x) ? z))*(10+x-z/y)),
    writeln('=================================='),
    write('Testing compilation of expression:'), writeln(Expression),
