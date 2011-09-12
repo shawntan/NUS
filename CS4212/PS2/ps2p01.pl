@@ -31,17 +31,14 @@ count_op(F, Op, 1) :- F = Op, member(F,[+,-,/,*,^, ++]).
 count_op(F, Op, 0) :- F \= Op.
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Operator declarations
 :- op(800,yfx,and).
 :- op(810,yfx,or).
 %%%%%%%%%%%%%%%%%%
-:- op(960,fx,??).
-:- op(970,xfy,++). 
+:- op(970,xfx,??).
+:- op(950,xfy,++). 
 %%%%%%%%%%%%%%%%%%
 
 % display(xx ?? aa ++ bb ++ cc) ==> ??(xx,++(aa,++(bb,cc)))
@@ -104,19 +101,17 @@ evalExpr(X ? Y : Z, Val, Env) :- !,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % empty_assoc(Empty), evalExpr((0<1) ?? 1 ++ 2 ++ 3, Val, Empty).
 evalExpr(X ?? Y ++ Z, Val, Env) :- !,
-	evalExpr(X, Vx, Env),
-	count_op(Y ++ Z, ++, C),				
-	(integer(X), Vx >= 1, Vx =< C+1 -> selectNthExpr(Y ++ Z, X, Val, Env); Val = 0).
-	
-	
+	evalExpr(X, Vx, Env), write('Output result is: '), writeln(Vx),
+	count_op(Y ++ Z, ++, C), C1 is C+1,				
+	(integer(Vx), Vx >= 1, Vx =< C1 -> selectNthExpr(Y ++ Z, X, Val, Env); Val = 0).
 	
 % Select the Nth Expr given an operator	
 evalExpr(X ?? Y, Val, Env) :- !,
 	evalExpr(X, Vx, Env),		
-	(integer(X), Vx = 1 -> evalExpr(Y, Val, Env); Val = 0).	
+	(integer(Vx), Vx = 1 -> evalExpr(Y, Val, Env); Val = 0).	
 	
 % empty_assoc(Empty), selectNthExpr(4++3+22, 1, Val, Empty).
-	
+% select the Nth expression. Currently using only '++'.	
 selectNthExpr(_++Y, C, Val, Env):- C > 1, C1 is C-1, !, selectNthExpr(Y, C1, Val, Env).
 selectNthExpr(X++_, 1, Val, Env) :- !, evalExpr(X, Val, Env).		
 selectNthExpr(X, 1, Val, Env) :- !, evalExpr(X, Val, Env).		
@@ -125,24 +120,12 @@ selectNthExpr(X, 1, Val, Env) :- !, evalExpr(X, Val, Env).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Test evaluator
-/*:- Expr = (x < y) ?? (x ++ y ++ z),
+:- Expr = (1+1 ?? (1 ++ 2 ++ 3)),
    writeln('================================='),
    write('Testing evaluation for expression: '), writeln(Expr),
-   writeln('With initial values x=10 and y=20'),
-   empty_assoc(Empty), put_assoc(x,Empty,10,Ex), put_assoc(y,Ex,20,Exy), put_assoc(z,Exy,30,Exyz),
-   evalExpr(Expr,Value, Exyz), write('Value returned: '), writeln(Value).*/
-/*
- *  Three-address intermediate code with jumps.
- *  Each instruction may be labelled:
- *     label :: instruction ;
- *
- *  Added non-conditional jumps, of the form:
- *     goto Expr
- *  where Expr should evaluate to a label+offset
- *
- *  Added conditional jumps, of the form:
- *     if Cond goto Expr
- */
+   writeln('With initial values x=2 and y=3 and z=4'),
+   empty_assoc(Empty), put_assoc(x,Empty,2,Ex), put_assoc(y,Ex,3,Exy), put_assoc(z,Exy,4,Exyz),
+   evalExpr(Expr,Value, Exyz), write('Value returned: '), writeln(Value).
 
 :- op(1099,yf,;).
 :- op(950,fx,goto).
@@ -389,11 +372,49 @@ compile((X ? Y : Z), Code, R) :- !,
                    R = Qz               ;
             Lout ::                      ).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+compile((X ?? Y), Code, R) :- !,
+	newvar(R), newlabel(Default), newlabel(Exit),
+	count_op(Y, ++, C), C1 is C+1,
+	compile(X, Cx, Qx),
+	compile(Y, 1, Qx, Cy, R),
+	Code = (	
+		Cx						  ;
+		if Qx < 1 goto Default	  ;
+		if Qx > C1 goto Default   ;
+		Cy						  ;
+		Default ::				  ;
+			R = 0				  ;
+		Exit ::					   ).
+
+compile((E ++ F), N, Qx, Code, R) :- !,
+	newlabel(Dest),
+	compile(E, Ce, Qe), N1 is N+1,
+	compile(F, N1, Qx, Cf, R),
+	Code = (
+		if Qx == N goto Dest	;
+		Cf						;		
+		Dest ::					;
+			Ce					;
+			R = Qe				;
+	).
+	
+compile(E, N, Qx, Code, R) :- !,
+	newlabel(Dest),
+	compile(E, Ce, Qe),
+	Code = (
+		if Qx == N goto Dest	;
+		Dest ::					;
+			Ce					;
+			R = Qe				;
+	).		
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % Test compiler
 %
 /*:- resetnewvar, resetnewlabel.*/
-
-/*:- Expression = (2<3),
+:- Expression = ( 1 ?? 100),
    writeln('=================================='),
    write('Testing compilation of expression:'), writeln(Expression),
    compile(Expression,Code,Res),
@@ -410,13 +431,9 @@ compile((X ? Y : Z), Code, R) :- !,
    write('Execution of object code '),
    write(Res),write(' = '),writeln(ObjVal).
 
-
-:- resetnewvar, resetnewlabel.
-
-:- Expression = ((1+(2<3) < x + y * z)+10),
+:- Expression = ( 2 ?? 100 ++ 200 ++ 300),
    writeln('=================================='),
    write('Testing compilation of expression:'), writeln(Expression),
-   isExpr(Expression),
    compile(Expression,Code,Res),
    writeln('Compiled code:'),
    writeTac(Code),
@@ -424,35 +441,12 @@ compile((X ? Y : Z), Code, R) :- !,
    % writeln('Resulting object code:'),
    % writeObjectcode(Obj,0),
    write('Evaluation of expression:'),
-   list_to_assoc([x-5,y-6,z-7],Start),
-   evalExpr(Expression,Val,Start),
+   empty_assoc(Empty), evalExpr(Expression,Val,Empty),
    writeln(Val),
-   execTAC(Start,Code,Results),
+   execTAC(Empty,Code,Results),
    get_assoc(Res,Results,ObjVal),
    write('Execution of object code '),
    write(Res),write(' = '),writeln(ObjVal).
-
-:- resetnewvar, resetnewlabel.
-
-:- Expression = ((2<((3<x)?y:z))*(10+x-z/y)),
-   writeln('=================================='),
-   write('Testing compilation of expression:'), writeln(Expression),
-   isExpr(Expression),
-   compile(Expression,Code,Res),
-   writeln('Compiled code:'),
-   writeTac(Code),
-   % tacToObj(Code,Obj),
-   % writeln('Resulting object code:'),
-   % writeObjectcode(Obj,0),
-   write('Evaluation of expression:'),
-   list_to_assoc([x-5,y-6,z-7],Start),
-   evalExpr(Expression,Val,Start),
-   writeln(Val),
-   execTAC(Start,Code,Results),
-   get_assoc(Res,Results,ObjVal),
-   write('Execution of object code '),
-   write(Res),write(' = '),writeln(ObjVal).
-*/
 
 
 
