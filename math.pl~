@@ -23,6 +23,7 @@ simplify(Xs,F) :-
 	sumlist(Nums, Sum),
 	groupterms(Syms, Y),
 	F = Y + Sum.
+
 splitterms(Xs+T, Syms, [T|Nums]) :- 	number(T), splitterms(Xs, Syms, Nums),!.
 splitterms(Xs-T, Syms, [-T|Nums]) :-	number(T), splitterms(Xs, Syms, Nums),!.
 splitterms(Xs+N*T, [N*T|Syms], Nums) :-	number(N), splitterms(Xs, Syms, Nums),!.
@@ -35,6 +36,8 @@ splitterms(X, [1*X], []).
 groupterms([X|Rest],[Final|Grouped]) :-
 	countterms(X,Rest,Final,Cleaned),
 	groupterms(Cleaned,Grouped).
+groupterms([X],[X]).
+
 countterms(N*X,[M*X|Rest],Final,Cleaned) :-
 	number(N),number(M),
 	S is N+M,
